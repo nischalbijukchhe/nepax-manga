@@ -1,0 +1,20 @@
+{
+    "sourceName": "Weeb Central",
+    "iconUrl": "https://weebcentral.com/static/images/apple-touch-icon.png",
+    "author": {
+        "name": "nepax",
+        "icon": "https://github.com/nepax.png",
+        "url": "https://github.com/nischalbijukchhe"
+    },
+    "version": "1.0.0",
+    "language": "English",
+    "streamType": "novels",
+    "quality": "High",
+    "baseUrl": "https://weebcentral.com/",
+    "searchBaseUrl": "https://weebcentral.com/search?text=%s",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/weebcentral.js",
+    "type": "novels",
+    "asyncJS": true,
+    "novel": true,
+    "downloadSupport": false
+}
