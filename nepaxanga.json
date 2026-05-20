@@ -1,0 +1,20 @@
+{
+    "sourceName": "WeebCentral Manga",
+    "iconUrl": "https://weebcentral.com/favicon.ico",
+    "author": {
+        "name": "Nepax",
+        "icon": "https://i.postimg.cc/RVkn062P/icon.png",
+        "url": "https://github.com/nischalbijukchhe"
+    },
+    "version": "2.0.0",
+    "language": "English",
+    "streamType": "manga",
+    "quality": "HD",
+    "baseUrl": "https://weebcentral.com/",
+    "searchBaseUrl": "https://weebcentral.com/search/data?text=%s",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/nepaxanga.js",
+    "type": "manga",
+    "asyncJS": true,
+    "novel": false,
+    "downloadSupport": true
+}
