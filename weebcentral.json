@@ -12,7 +12,7 @@
     "quality": "High",
     "baseUrl": "https://weebcentral.com/",
     "searchBaseUrl": "https://weebcentral.com/search?text=%s",
-    "scriptUrl": "https://raw.githubusercontent.com/Soony5/MangaWorld/refs/heads/main/weebcentral.js",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/weebcentral.js",
     "type": "novels",
     "asyncJS": true,
     "novel": true,
