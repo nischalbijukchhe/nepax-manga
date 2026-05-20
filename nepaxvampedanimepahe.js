@@ -96,9 +96,64 @@
 //     }
 // }
 
+function normalizeAnimepaheSearchKeyword(keyword) {
+    let k = String(keyword || "").trim();
+    k = k.replace(/\s+season\s*\d+\s*$/i, "");
+    k = k.replace(/\s+s\d+\s*$/i, "");
+    k = k.replace(/\s+\d+(?:st|nd|rd|th)\s+season\s*$/i, "");
+    for (const sep of [" - ", " – ", " — ", " ~"]) {
+        const idx = k.indexOf(sep);
+        if (idx > 0) {
+            k = k.slice(0, idx).trim();
+            break;
+        }
+    }
+    return k || String(keyword || "").trim();
+}
+
+function animepaheSearchTokens(text) {
+    return String(text || "").toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+}
+
+function animepaheRelevanceScore(query, title) {
+    const q = animepaheSearchTokens(query);
+    const t = animepaheSearchTokens(title);
+    if (!q.length || !t.length) return 0;
+    const qStr = q.join(" ");
+    const tStr = t.join(" ");
+    let score = 0;
+    if (tStr === qStr) score += 100;
+    else if (tStr.includes(qStr) || qStr.includes(tStr)) score += 60;
+    for (const w of q) {
+        if (t.includes(w)) score += 10;
+    }
+    return score;
+}
+
+function rankAnimepaheSearchResults(keyword, results) {
+    if (!Array.isArray(results) || results.length <= 1) return results;
+    const query = normalizeAnimepaheSearchKeyword(keyword);
+    const scored = results.map(item => ({
+        item,
+        score: animepaheRelevanceScore(query, item.title)
+    }));
+    const maxScore = Math.max(...scored.map(s => s.score), 0);
+    if (maxScore < 20) return results;
+    const filtered = scored
+        .filter(s => s.score >= Math.max(20, maxScore - 15))
+        .sort((a, b) => b.score - a.score)
+        .map(s => s.item);
+    return filtered.length ? filtered : results;
+}
+
 async function searchResults(keyword) {
     try {
-        const encodedKeyword = encodeURIComponent(keyword);
+        const query = normalizeAnimepaheSearchKeyword(keyword);
+        const encodedKeyword = encodeURIComponent(query);
 
         const ddosInterceptor = new DdosGuardInterceptor();
         const responseText = await ddosInterceptor.fetchWithBypass(`https://animepahe.com/api?m=search&q=${encodedKeyword}`);
@@ -114,6 +169,7 @@ async function searchResults(keyword) {
                     href: `https://animepahe.com/anime/${result.session}`
                 };
             });
+            transformedResults = rankAnimepaheSearchResults(query, transformedResults);
         } else {
             console.log("No data received from Animepahe");
         }
@@ -121,7 +177,7 @@ async function searchResults(keyword) {
         return JSON.stringify(transformedResults);
     } catch (error) {
         console.log("Fetch error in searchResults: " + error);
-        return JSON.stringify([{ title: "Error", image: "", href: "" }]);
+        return JSON.stringify([]);
     }
 }
 
@@ -231,24 +287,80 @@ async function extractEpisodes(url) {
     }
 }
 
+function pickBestKwikTarget(html, fallbackUrl) {
+    const regex = /<button[^>]*data-src="([^"]+)"[^>]*data-fansub="([^"]*)"[^>]*data-resolution="([^"]*)"[^>]*data-audio="([^"]*)"[^>]*>/g;
+    const candidates = [];
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+        const [, src, fansub, resolution, audio] = match;
+        if (audio && audio !== "jpn") continue;
+        const numericRes = parseInt(String(resolution).replace(/\D/g, ""), 10) || 0;
+        candidates.push({
+            src,
+            fansub,
+            resolution,
+            numericRes,
+            title: `${fansub} · ${resolution} · SUB`
+        });
+    }
+    if (candidates.length > 0) {
+        candidates.sort((a, b) => b.numericRes - a.numericRes);
+        return candidates[0];
+    }
+
+    const iframeMatch = html.match(/<iframe[^>]+src="(https?:\/\/[^"]*kwik[^"]+)"/i);
+    if (iframeMatch) {
+        return { src: iframeMatch[1], title: "Pahe" };
+    }
+
+    const hrefMatch = html.match(/href="(https?:\/\/[^"]*kwik[^"]+)"/i);
+    if (hrefMatch) {
+        return { src: hrefMatch[1], title: "Pahe" };
+    }
+
+    return { src: fallbackUrl, title: "Pahe" };
+}
+
 async function extractStreamUrl(url) {
     try {
-        const streams = await networkFetch(url, {
+        const ddosInterceptor = new DdosGuardInterceptor();
+        let playHtml = "";
+        let kwikTarget = { src: url, title: "Pahe" };
+
+        try {
+            const playResponse = await ddosInterceptor.fetchWithBypass(url);
+            playHtml = await playResponse.text();
+            kwikTarget = pickBestKwikTarget(playHtml, url);
+        } catch (e) {
+            console.log("Animepahe play page fetch failed, using direct URL: " + e);
+        }
+
+        const networkOptions = {
             timeoutSeconds: 30,
             cutoff: ".m3u8",
             headers: {
-                "Cookie": "aud=jpn"
+                "Cookie": "aud=jpn",
+                "Referer": "https://animepahe.com/"
             },
             waitForSelectors: [".click-to-load"],
             clickSelectors: [".click-to-load"],
-            maxWaitTime: 5,
-        });
+            maxWaitTime: 8,
+        };
+
+        let streams = await networkFetch(kwikTarget.src, networkOptions);
+
+        if ((!streams.requests || streams.requests.length === 0) && playHtml) {
+            streams = await networkFetchFromHTML(playHtml, networkOptions);
+        }
+
+        if ((!streams.requests || streams.requests.length === 0) && kwikTarget.src !== url) {
+            streams = await networkFetch(url, networkOptions);
+        }
 
         console.log("Animepahe streams: " + JSON.stringify(streams));
-        console.log("Animepahe stream: " + streams.requests.find(url => url.includes('.m3u8')));
 
         if (streams.requests && streams.requests.length > 0) {
-            const raw = streams.requests.find(url => url.includes('.m3u8')) || "";
+            const raw = streams.requests.find(u => u.includes(".m3u8")) || "";
             if (!raw) {
                 return JSON.stringify({ streams: [], subtitles: "" });
             }
@@ -256,9 +368,9 @@ async function extractStreamUrl(url) {
                 .replace("/stream/", "/hls/")
                 .replace("uwu.m3u8", "owo.m3u8");
 
-            const results = {
+            return JSON.stringify({
                 streams: [{
-                    title: "Pahe",
+                    title: kwikTarget.title || "Pahe",
                     streamUrl,
                     headers: {
                         "Referer": "https://kwik.cx/",
@@ -266,13 +378,11 @@ async function extractStreamUrl(url) {
                     },
                 }],
                 subtitles: ""
-            }
-
-            return JSON.stringify(results);
+            });
         }
         return JSON.stringify({ streams: [], subtitles: "" });
     } catch (error) {
-        console.log('Fetch error in extractStreamUrl: ' + error);
+        console.log("Fetch error in extractStreamUrl: " + error);
         return JSON.stringify({ streams: [], subtitles: "" });
     }
 }
