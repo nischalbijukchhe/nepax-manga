@@ -1,0 +1,20 @@
+{
+    "sourceName": "YouTube Music",
+    "iconUrl": "https://www.gstatic.com/youtube/img/music/logo_ytmusic_round_v1_144.png",
+    "author": {
+        "name": "NEPAX",
+        "icon": "https://github.com/nischalbijukchhe.png",
+        "url": "https://github.com/nischalbijukchhe"
+    },
+    "version": "1.2.0",
+    "language": "English",
+    "streamType": "audio",
+    "quality": "High",
+    "baseUrl": "https://music.youtube.com/",
+    "searchBaseUrl": "https://music.youtube.com/search?q=%s",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/ytmusic.js",
+    "type": "music",
+    "asyncJS": true,
+    "downloadSupport": false,
+    "softsub": false
+}
