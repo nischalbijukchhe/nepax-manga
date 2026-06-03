@@ -937,7 +937,9 @@ async function extractStreamUrl(url) {
                     title: `Server ${serverIndex} (${host})`,
                     streamUrl: resolved.streamUrl,
                     headers: resolved.headers,
-                    allSubtitles: resolved.subtitleTracks || [],
+                    allSubtitles: subtitleTracks.length
+                        ? subtitleTracks
+                        : resolved.subtitleTracks || [],
                 });
             }
         }
