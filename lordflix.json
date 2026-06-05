@@ -1,0 +1,19 @@
+{
+    "sourceName": "LordFlix",
+    "iconUrl": "https://lordflix.org/mstile-150x150.png",
+    "author": {
+        "name": "50/50",
+        "icon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3122kQwublLkZ6rf1fEpUP79BxZOFmH9BSA&s"
+    },
+    "version": "1.1.0",
+    "language": "English",
+    "streamType": "HLS",
+    "quality": "4K",
+    "baseUrl": "https://lordflix.org/",
+    "searchBaseUrl": "https://lordflix.org/",
+    "scriptUrl": "https://git.luna-app.eu/50n50/sources/raw/branch/main/lordflix/lordflix.js",
+    "type": "shows/movies/anime",
+    "asyncJS": true,
+    "softsub": true,
+    "downloadSupport": false
+}
