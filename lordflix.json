@@ -11,7 +11,7 @@
     "quality": "4K",
     "baseUrl": "https://lordflix.org/",
     "searchBaseUrl": "https://lordflix.org/",
-    "scriptUrl": "https://git.luna-app.eu/50n50/sources/raw/branch/main/lordflix/lordflix.js",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/lordflix.js",
     "type": "shows/movies/anime",
     "asyncJS": true,
     "softsub": true,
