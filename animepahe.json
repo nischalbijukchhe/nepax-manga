@@ -1,0 +1,20 @@
+{
+    "sourceName": "Animepahe",
+    "iconUrl": "https://git.luna-app.eu/ibro/services/raw/branch/main/animepahe/icon.png",
+    "author": {
+        "name": "ibro x NEPAX",
+        "icon": "https://git.luna-app.eu/ibro/services/raw/branch/main/profile.jpg",
+        "url": "https://github.com/xibrox"
+    },
+    "version": "1.5.0",
+    "language": "English",
+    "streamType": "HLS",
+    "quality": "1080p",
+    "baseUrl": "https://animepahe.pw/",
+    "searchBaseUrl": "https://animepahe.pw/search?query=%s",
+    "scriptUrl": "bundled://animepahe",
+    "type": "anime",
+    "downloadSupport": true,
+    "asyncJS": true,
+    "softsub": true
+}
