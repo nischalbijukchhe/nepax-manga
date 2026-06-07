@@ -12,7 +12,7 @@
     "quality": "1080p",
     "baseUrl": "https://animepahe.pw/",
     "searchBaseUrl": "https://animepahe.pw/search?query=%s",
-    "scriptUrl": "bundled://animepahe",
+    "scriptUrl": "https://raw.githubusercontent.com/nischalbijukchhe/nepax-manga/refs/heads/main/animepahe.js",
     "type": "anime",
     "downloadSupport": true,
     "asyncJS": true,
